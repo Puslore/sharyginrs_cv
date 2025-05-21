@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import socket
 import numpy as np
+from time import sleep
 
 
 host = "84.237.21.36"
@@ -40,6 +41,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
     plt.figure()
 
     while beat != b"yep":
+        flag = False
         sock.send(b"get")
         bts = recvall(sock, 40002)
 
@@ -53,6 +55,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
         except IndexError as err:
             print(f'Ошибка при вычислении результата - {err}')
             result = 0.0
+            flag = True
             
         sock.send(f"{round(result, 1)}".encode())
         print(sock.recv(10))
@@ -60,5 +63,10 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
         plt.clf()
         plt.imshow(img)
         plt.pause(1)
+        if flag: sleep(5)       # чтобы успеть рассмотреть звездочки.
+                                       # у других людей код принтит nope,
+                                       # а у меня почему-то поднимает
+                                       # исключение. сделал такой костыль
+                                       # в виде обработчика исключений 
         sock.send(b"beat")
         beat = sock.recv(10)
