@@ -45,8 +45,15 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
 
         img = np.frombuffer(bts[2:], dtype = "uint8").reshape(bts[0], bts[1])
         coords = distance(img)
-        result = ((coords[0] - coords[2]) ** 2 + \
-                      (coords[1] - coords[3]) ** 2) ** 0.5
+        
+        try:
+            result = ((coords[0] - coords[2]) ** 2 + \
+                        (coords[1] - coords[3]) ** 2) ** 0.5
+        
+        except IndexError as err:
+            print(f'Ошибка при вычислении результата - {err}')
+            result = 0.0
+            
         sock.send(f"{round(result, 1)}".encode())
         print(sock.recv(10))
         
